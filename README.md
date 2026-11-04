@@ -43,3 +43,5 @@ The imported source is an upstream archive because `git clone` could not reach G
 To run the HTTP workflow without a model key, pass `--support.rag.ingest-on-startup=false` and use a placeholder `OPENAI_API_KEY`; chat and RAG calls will still require a valid key. This mode is for local API verification only.
 
 The current demo uses the upstream LangChain4j 0.35.0 and Vaadin 24.4.11 stack. The project is intentionally pinned for a narrow workflow upgrade; framework version migration is a separate change and should be tested against its breaking APIs.
+
+The supplied Docker image runs Vaadin in development mode to keep the fork reproducible without a separate frontend deployment. It is intended for local demonstrations, not public hosting.

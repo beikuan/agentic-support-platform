@@ -44,3 +44,7 @@ out/
 storage/
 
 src/main/frontend/generated/
+/data/
+.env
+/src/main/frontend/generated/
+.vaadin-node-tasks.lock

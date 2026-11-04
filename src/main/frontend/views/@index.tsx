@@ -9,10 +9,15 @@ import {SplitLayout} from "@vaadin/react-components/SplitLayout";
 import Message, {MessageItem} from "../components/Message";
 import MessageList from "Frontend/components/MessageList";
 
+type Ticket = {id: string; bookingNumber: string; status: string; proposedAction?: string; recommendation?: string};
+
 export default function Index() {
   const [chatId, setChatId] = useState(nanoid());
   const [working, setWorking] = useState(false);
   const [bookings, setBookings] = useState<BookingDetails[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [operatorKey, setOperatorKey] = useState("");
+  const [ticketError, setTicketError] = useState("");
   const [messages, setMessages] = useState<MessageItem[]>([{
     role: 'assistant',
     content: 'Welcome to Funnair! How can I help you?'
@@ -24,6 +29,23 @@ export default function Index() {
       BookingService.getBookings().then(setBookings);
     }
   }, [working]);
+
+  async function loadTickets() {
+    if (!operatorKey) return;
+    const response = await fetch('/api/tickets', {headers: {'X-Operator-Key': operatorKey}});
+    if (!response.ok) { setTicketError('Cannot load tickets. Check operator key.'); return; }
+    setTicketError('');
+    setTickets(await response.json());
+  }
+
+  async function decide(id: string, decision: 'approve' | 'reject') {
+    const response = await fetch(`/api/tickets/${id}/${decision}`, {
+      method: 'POST', headers: {'X-Operator-Key': operatorKey}
+    });
+    if (!response.ok) { setTicketError(`Could not ${decision} ticket.`); return; }
+    await loadTickets();
+    BookingService.getBookings().then(setBookings);
+  }
 
   function addMessage(message: MessageItem) {
     setMessages(messages => [...messages, message]);
@@ -83,6 +105,23 @@ export default function Index() {
           </GridColumn>
           <GridColumn path="bookingClass" autoWidth/>
         </Grid>
+        <h3>Support tickets</h3>
+        <div className="flex gap-s">
+          <input type="password" placeholder="Operator key" value={operatorKey}
+                 onChange={e => setOperatorKey(e.target.value)}/>
+          <button onClick={loadTickets}>Refresh tickets</button>
+        </div>
+        {ticketError && <p role="alert">{ticketError}</p>}
+        <div className="overflow-scroll">
+          {tickets.map(ticket => <div key={ticket.id} className="p-s border-b">
+            <strong>{ticket.bookingNumber}</strong> · {ticket.status} · {ticket.proposedAction || 'No action'}
+            <p>{ticket.recommendation}</p>
+            {ticket.status === 'PENDING_APPROVAL' && <div className="flex gap-s">
+              <button onClick={() => decide(ticket.id, 'approve')}>Approve</button>
+              <button onClick={() => decide(ticket.id, 'reject')}>Reject</button>
+            </div>}
+          </div>)}
+        </div>
       </div>
     </SplitLayout>
 

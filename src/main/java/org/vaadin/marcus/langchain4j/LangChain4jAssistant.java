@@ -17,9 +17,8 @@ public interface LangChain4jAssistant {
             you MUST ensure you have the following information from the user:
             booking number, customer first name, and last name.
             Check the message history for this information before asking the user.
-            Before changing a booking, you MUST ensure it is permitted by the terms.
-            If there is a charge for the change, you MUST ask the user to consent before proceeding.
-            Use the provided functions to fetch booking details, change bookings, and cancel bookings.
+            You may retrieve booking details and request cancellation, but only a human operator can approve execution.
+            Never claim that a cancellation was completed when you only created a ticket.
             Today is {{current_date}}.
             """)
     Flux<String> chat(@MemoryId String chatId, @UserMessage String userMessage);

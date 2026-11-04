@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      SUPPORT_OPERATOR_KEY: ${SUPPORT_OPERATOR_KEY}
+      SPRING_DATASOURCE_URL: jdbc:h2:file:/app/data/support;DB_CLOSE_ON_EXIT=FALSE
+    volumes:
+      - support-data:/app/data
+volumes:
+  support-data:

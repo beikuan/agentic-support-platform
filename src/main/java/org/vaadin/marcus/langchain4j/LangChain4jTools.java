@@ -5,6 +5,7 @@ import dev.langchain4j.agent.tool.Tool;
 import org.springframework.stereotype.Component;
 import org.vaadin.marcus.service.BookingDetails;
 import org.vaadin.marcus.service.FlightService;
+import org.vaadin.marcus.support.TicketService;
 
 import java.time.LocalDate;
 
@@ -12,9 +13,11 @@ import java.time.LocalDate;
 public class LangChain4jTools {
 
     private final FlightService service;
+    private final TicketService tickets;
 
-    public LangChain4jTools(FlightService service) {
+    public LangChain4jTools(FlightService service, TicketService tickets) {
         this.service = service;
+        this.tickets = tickets;
     }
 
     @Tool("""
@@ -25,24 +28,9 @@ public class LangChain4jTools {
         return service.getBookingDetails(bookingNumber, firstName, lastName);
     }
 
-    @Tool("""
-            Modifies an existing booking.
-            This includes making changes to the flight date, and the departure and arrival airports.
-            """)
-    public void changeBooking(
-        String bookingNumber,
-        String firstName,
-        String lastName,
-        LocalDate newFlightDate,
-        @P("3-letter code for departure airport") String newDepartureAirport,
-        @P("3-letter code for arrival airport") String newArrivalAirport
-    ) {
-        service.changeBooking(bookingNumber, firstName, lastName, newFlightDate, newDepartureAirport, newArrivalAirport);
-    }
-
-    @Tool
-    public void cancelBooking(String bookingNumber, String firstName, String lastName) {
-        service.cancelBooking(bookingNumber, firstName, lastName);
+    @Tool("Request cancellation of a booking. Returns a ticket ID; cancellation requires human approval and is not performed by this tool.")
+    public String requestCancellation(String bookingNumber, String firstName, String lastName) {
+        return tickets.requestCancellation(bookingNumber, firstName, lastName).id();
     }
 
 }

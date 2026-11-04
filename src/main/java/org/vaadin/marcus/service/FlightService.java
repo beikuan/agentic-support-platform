@@ -23,7 +23,7 @@ public class FlightService {
         List<String> firstNames = List.of("John", "Jane", "Michael", "Sarah", "Robert");
         List<String> lastNames = List.of("Doe", "Smith", "Johnson", "Williams", "Taylor");
         List<String> airportCodes = List.of("LAX", "SFO", "JFK", "LHR", "CDG", "ARN", "HEL", "TXL", "MUC", "FRA", "MAD", "SJC");
-        Random random = new Random();
+        Random random = new Random(20261104);
 
         var customers = new ArrayList<Customer>();
         var bookings = new ArrayList<Booking>();
@@ -83,8 +83,9 @@ public class FlightService {
         booking.setTo(newArrivalAirport);
     }
 
-    public void cancelBooking(String bookingNumber, String firstName, String lastName) {
+    public synchronized void cancelBooking(String bookingNumber, String firstName, String lastName) {
         var booking = findBooking(bookingNumber, firstName, lastName);
+        if (booking.getBookingStatus() == BookingStatus.CANCELLED) return;
         if (booking.getDate().isBefore(LocalDate.now().plusDays(2))) {
             throw new IllegalArgumentException("Booking cannot be cancelled within 48 hours of the start date.");
         }

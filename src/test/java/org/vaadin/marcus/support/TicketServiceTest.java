@@ -7,6 +7,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.core.io.ClassPathResource;
 import org.vaadin.marcus.service.FlightService;
+import org.vaadin.marcus.langchain4j.LangChain4jTools;
 import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,5 +51,12 @@ class TicketServiceTest {
         assertThrows(ResponseStatusException.class, () -> controller.list(null));
         assertThrows(ResponseStatusException.class, () -> controller.list("wrong"));
         assertTrue(controller.list("secret").isEmpty());
+    }
+
+    @Test void agentToolOnlyRequestsCancellation() {
+        var tool = new LangChain4jTools(flights, tickets);
+        String id = tool.requestCancellation("102", "Jane", "Smith");
+        assertEquals(TicketStatus.PENDING_APPROVAL, tickets.get(id).status());
+        assertEquals("CONFIRMED", flights.getBookingDetails("102", "Jane", "Smith").bookingStatus().name());
     }
 }

@@ -48,3 +48,5 @@ src/main/frontend/generated/
 .env
 /src/main/frontend/generated/
 .vaadin-node-tasks.lock
+
+/src/main/bundles/

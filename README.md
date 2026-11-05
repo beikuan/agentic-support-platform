@@ -18,7 +18,7 @@ flowchart LR
 
 ## Run
 
-Requirements: Java 21, Maven, Node.js for Vaadin frontend, an OpenAI API key. Set `OPENAI_API_KEY` and a long random `SUPPORT_OPERATOR_KEY`, then run `mvn test` and `mvn spring-boot:run`. Open <http://localhost:8080>. The H2 database is stored under `./data/`. Alternatively copy `.env.example` to `.env`, fill both values, and run `docker compose up --build`.
+Requirements: Java 21, Maven, Node.js for Vaadin frontend, an OpenAI API key. Set `OPENAI_API_KEY` and a long random `SUPPORT_OPERATOR_KEY`, then run `mvn test` and `mvn spring-boot:run` for development, or `mvn -Pproduction test package` followed by `java -jar target/agentic-support-platform-1.0-SNAPSHOT.jar`. Open <http://localhost:8080>. The H2 database is stored under `./data/`. Alternatively copy `.env.example` to `.env`, fill both values, and run `docker compose up --build`.
 
 Demo booking `102` belongs to Jane Smith and is at least two days in the future. Ask the chat to cancel booking 102 for Jane Smith. The assistant should return a ticket ID and say that cancellation awaits operator approval. Enter the operator key in the ticket panel and refresh. Approve or reject the ticket, then refresh bookings. For a rejection demonstration, create a fresh ticket and reject it. No real airline or payment API is called.
 
@@ -44,4 +44,4 @@ To run the HTTP workflow without a model key, pass `--support.rag.ingest-on-star
 
 The current demo uses the upstream LangChain4j 0.35.0 and Vaadin 24.4.11 stack. The project is intentionally pinned for a narrow workflow upgrade; framework version migration is a separate change and should be tested against its breaking APIs.
 
-The supplied Docker image runs Vaadin in development mode to keep the fork reproducible without a separate frontend deployment. It is intended for local demonstrations, not public hosting.
+The Dockerfile builds a Vaadin production bundle and packages it into a JRE image. Use `mvn -Pproduction test package` for the same local build; a plain `mvn package` jar uses Vaadin development mode and is intended to run through `mvn spring-boot:run`.

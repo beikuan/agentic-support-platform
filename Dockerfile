@@ -1,7 +1,10 @@
-# Demo image keeps Vaadin's generated frontend and Node runtime available.
-FROM maven:3.9-eclipse-temurin-21
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
-RUN mvn -B test package
+RUN mvn -B -Pproduction test package
+
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /app/target/agentic-support-platform-1.0-SNAPSHOT.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "target/agentic-support-platform-1.0-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
